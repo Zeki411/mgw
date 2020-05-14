@@ -696,7 +696,7 @@ void open_rxlog(void) {
     strftime(iso_date,ARRAY_SIZE(iso_date),"%Y%m%dT%H%M%SZ",gmtime(&now_time)); /* format yyyymmddThhmmssZ */
     rxfile_start_time = now_time; /* keep track of when the log was started, for log rotation */
 
-    sprintf(rxfile_name, "/home/pi/Desktop/ZekiDev/mgw/apps/rxLoRaData.csv");
+    sprintf(rxfile_name, "/opt/mgw/apps/rxLoRaData.csv");
     rxfile = fopen(rxfile_name, "a"); /* create log file, append if file already exist */
     if (rxfile == NULL) {
         MSG("ERROR: impossible to create log file %s\n", rxfile_name);
@@ -722,7 +722,7 @@ void open_txlog(void){
     strftime(iso_date,ARRAY_SIZE(iso_date),"%Y%m%dT%H%M%SZ",gmtime(&now_time)); /* format yyyymmddThhmmssZ */
     txfile_start_time = now_time; /* keep track of when the log was started, for log rotation */
 
-    sprintf(txfile_name, "/home/pi/Desktop/ZekiDev/mgw/apps/txLoRaData.csv");
+    sprintf(txfile_name, "/opt/mgw/apps/txLoRaData.csv");
     txfile = fopen(txfile_name, "a"); /* create log file, append if file already exist */
     if (txfile == NULL) {
         MSG("ERROR: impossible to open tx file %s\n", txfile_name);
