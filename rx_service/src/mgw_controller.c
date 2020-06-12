@@ -696,7 +696,7 @@ void open_rxlog(void) {
     strftime(iso_date,ARRAY_SIZE(iso_date),"%Y%m%dT%H%M%SZ",gmtime(&now_time)); /* format yyyymmddThhmmssZ */
     rxfile_start_time = now_time; /* keep track of when the log was started, for log rotation */
 
-    sprintf(rxfile_name, "/opt/mgw/apps/rxLoRaData.csv");
+    sprintf(rxfile_name, "/opt/mgw_Pi/apps/TCP_PF/input/dataUp.csv");
     rxfile = fopen(rxfile_name, "a"); /* create log file, append if file already exist */
     if (rxfile == NULL) {
         MSG("ERROR: impossible to create log file %s\n", rxfile_name);
@@ -722,7 +722,7 @@ void open_txlog(void){
     strftime(iso_date,ARRAY_SIZE(iso_date),"%Y%m%dT%H%M%SZ",gmtime(&now_time)); /* format yyyymmddThhmmssZ */
     txfile_start_time = now_time; /* keep track of when the log was started, for log rotation */
 
-    sprintf(txfile_name, "/opt/mgw/apps/txLoRaData.csv");
+    sprintf(txfile_name, "/opt/mgw_Pi/apps/TCP_PF/output/dataDown.csv");
     txfile = fopen(txfile_name, "a"); /* create log file, append if file already exist */
     if (txfile == NULL) {
         MSG("ERROR: impossible to open tx file %s\n", txfile_name);
@@ -871,8 +871,8 @@ void thread_up(void)
     uint8_t status_var;
 
     char mod[64] = DEFAULT_MODULATION;
-    uint32_t f_target = 868300000; /* target frequency - invalid default value, has to be specified by user */
-    int sf = 7; /* SF10 by default */
+    uint32_t f_target = 869000000; /* target frequency - invalid default value, has to be specified by user */
+    int sf = 10; /* SF10 by default */
     int cr = 1; /* CR1 aka 4/5 by default */
     int bw = 125; /* 125kHz bandwidth by default */
     int pow = 14; /* 14 dBm by default */
@@ -991,8 +991,59 @@ void thread_up(void)
             
             printf("This msg %u from node %u : %s\r\n", macMsgData.FHDR.FCnt, (macMsgData.FHDR.DevAddr) & 0xFF, macMsgData.FRMPayload);
             /* Log Data */
-            fprintf(rxfile,"\"%u.%u.%u.%u\",",(macMsgData.FHDR.DevAddr >> 24) & 0xFF,(macMsgData.FHDR.DevAddr >> 16) & 0xFF,(macMsgData.FHDR.DevAddr >> 8) & 0xFF,(macMsgData.FHDR.DevAddr) & 0xFF);
+            /* writing Node Address */
+            fprintf(rxfile,"%u.%u.%u.%u,",(macMsgData.FHDR.DevAddr >> 24) & 0xFF,(macMsgData.FHDR.DevAddr >> 16) & 0xFF,(macMsgData.FHDR.DevAddr >> 8) & 0xFF,(macMsgData.FHDR.DevAddr) & 0xFF);
+            /* writing RX frequency */
+            fprintf(rxfile, "%10u,", p->freq_hz);
+            /* writing payload size */
+            fprintf(rxfile,"%3u,", p->size);
+
+            /* writing bandwidth */
+            switch(p->bandwidth) {
+                case BW_500KHZ:     fputs("500000,", rxfile); break;
+                case BW_250KHZ:     fputs("250000,", rxfile); break;
+                case BW_125KHZ:     fputs("125000,", rxfile); break;
+                case BW_62K5HZ:     fputs("62500 ,", rxfile); break;
+                case BW_31K2HZ:     fputs("31200 ,", rxfile); break;
+                case BW_15K6HZ:     fputs("15600 ,", rxfile); break;
+                case BW_7K8HZ:      fputs("7800  ,", rxfile); break;
+                case BW_UNDEFINED:  fputs("0     ,", rxfile); break;
+                default:            fputs("-1    ,", rxfile);
+            }
+
+            /* writing datarate */
+            if (p->modulation == MOD_LORA) {
+                switch (p->datarate) {
+                    case DR_LORA_SF7:   fputs("\"SF7\"  ,", rxfile); break;
+                    case DR_LORA_SF8:   fputs("\"SF8\"  ,", rxfile); break;
+                    case DR_LORA_SF9:   fputs("\"SF9\"  ,", rxfile); break;
+                    case DR_LORA_SF10:  fputs("\"SF10\" ,", rxfile); break;
+                    case DR_LORA_SF11:  fputs("\"SF11\" ,", rxfile); break;
+                    case DR_LORA_SF12:  fputs("\"SF12\" ,", rxfile); break;
+                    default:            fputs("\"ERR\"  ,", rxfile);
+                }
+            } else if (p->modulation == MOD_FSK) {
+                fprintf(rxfile, "\"%6u\",", p->datarate);
+            } else {
+                fputs("\"ERR\"   ,", rxfile);
+            }
+
+            /* writing coderate */
+            switch (p->coderate) {
+                case CR_LORA_4_5:   fputs("\"4/5\",", rxfile); break;
+                case CR_LORA_4_6:   fputs("\"2/3\",", rxfile); break;
+                case CR_LORA_4_7:   fputs("\"4/7\",", rxfile); break;
+                case CR_LORA_4_8:   fputs("\"1/2\",", rxfile); break;
+                case CR_UNDEFINED:  fputs("\"\"   ,", rxfile); break;
+                default:            fputs("\"ERR\",", rxfile);
+            }
+            /* writing packet RSSI */
+            fprintf(rxfile, "%+.0f,", p->rssi);
+            /* writing packet average SNR */
+            fprintf(rxfile, "%+5.1f,", p->snr);
+            /* writing Frame Counter */
             fprintf(rxfile,"%u,",macMsgData.FHDR.FCnt);
+            /* writing Frame Payload */
             fprintf(rxfile,"%s",macMsgData.FRMPayload);
             fputs("\n", rxfile); //end of log file line
             fflush(rxfile);

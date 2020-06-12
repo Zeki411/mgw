@@ -37,6 +37,30 @@
             "radio": 1,
             "if": -400000
         },
+        "chan_multiSF_1": {
+            /* Lora MAC channel, 125kHz, all SF, 868.3 MHz */
+            "enable": true,
+            "radio": 1,
+            "if": -200000
+        },
+        "chan_multiSF_2": {
+            /* Lora MAC channel, 125kHz, all SF, 868.5 MHz */
+            "enable": true,
+            "radio": 1,
+            "if": 0
+        },
+        "chan_multiSF_3": {
+            /* Lora MAC channel, 125kHz, all SF, 867.1 MHz */
+            "enable": true,
+            "radio": 0,
+            "if": -400000
+        },
+        "chan_multiSF_4": {
+            /* Lora MAC channel, 125kHz, all SF, 867.3 MHz */
+            "enable": true,
+            "radio": 0,
+            "if": -200000
+        },
         "chan_Lora_std": {
             /* Lora MAC channel, 250kHz, SF7, 868.3 MHz */
             "enable": true,
