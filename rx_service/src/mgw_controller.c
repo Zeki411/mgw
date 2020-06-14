@@ -696,7 +696,7 @@ void open_rxlog(void) {
     strftime(iso_date,ARRAY_SIZE(iso_date),"%Y%m%dT%H%M%SZ",gmtime(&now_time)); /* format yyyymmddThhmmssZ */
     rxfile_start_time = now_time; /* keep track of when the log was started, for log rotation */
 
-    sprintf(rxfile_name, "/opt/mgw_Pi/apps/TCP_PF/input/dataUp.csv");
+    sprintf(rxfile_name, "/opt/mgw_BBAI/apps/TCP_PF/input/dataUp.csv");
     rxfile = fopen(rxfile_name, "a"); /* create log file, append if file already exist */
     if (rxfile == NULL) {
         MSG("ERROR: impossible to create log file %s\n", rxfile_name);
@@ -722,7 +722,7 @@ void open_txlog(void){
     strftime(iso_date,ARRAY_SIZE(iso_date),"%Y%m%dT%H%M%SZ",gmtime(&now_time)); /* format yyyymmddThhmmssZ */
     txfile_start_time = now_time; /* keep track of when the log was started, for log rotation */
 
-    sprintf(txfile_name, "/opt/mgw_Pi/apps/TCP_PF/output/dataDown.csv");
+    sprintf(txfile_name, "/opt/mgw_BBAI/apps/TCP_PF/output/dataDown.csv");
     txfile = fopen(txfile_name, "a"); /* create log file, append if file already exist */
     if (txfile == NULL) {
         MSG("ERROR: impossible to open tx file %s\n", txfile_name);
@@ -871,8 +871,8 @@ void thread_up(void)
     uint8_t status_var;
 
     char mod[64] = DEFAULT_MODULATION;
-    uint32_t f_target = 869000000; /* target frequency - invalid default value, has to be specified by user */
-    int sf = 10; /* SF10 by default */
+    uint32_t f_target = 869525000; /* target frequency - invalid default value, has to be specified by user */
+    int sf = 7; /* SF10 by default */
     int cr = 1; /* CR1 aka 4/5 by default */
     int bw = 125; /* 125kHz bandwidth by default */
     int pow = 14; /* 14 dBm by default */

@@ -2,9 +2,9 @@ from lib.SocketAdapter import libSoAd
 import os
 import time
 
-txDir = '/opt/mgw_Pi/apps/TCP_PF/input/dataUp.csv'
-rxDir = '/opt/mgw_Pi/apps/TCP_PF/output/dataDown.csv'
-cfgDir = '/opt/mgw_Pi/apps/TCP_PF/input/config.txt' 
+txDir = '/opt/mgw_BBAI/apps/TCP_PF/input/dataUp.csv'
+rxDir = '/opt/mgw_BBAI/apps/TCP_PF/output/dataDown.csv'
+cfgDir = '/opt/mgw_BBAI/apps/TCP_PF/input/config.txt' 
 def RxCallback(data):
     print(data)
     with open(rxDir, 'a+') as fout:
