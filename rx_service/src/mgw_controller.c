@@ -1,4 +1,3 @@
-
 /* -------------------------------------------------------------------------- */
 /* --- DEPENDANCIES --------------------------------------------------------- */
 
@@ -32,7 +31,7 @@
 #include "Std_Types.h"
 
 #define PORT 23 
-#define GW_ADDR 255
+#define GW_ADDR ((255<<24) | (255<<16) | (0<<8) | 0)
 /* -------------------------------------------------------------------------- */
 /* --- PRIVATE MACROS ------------------------------------------------------- */
 
@@ -151,18 +150,21 @@ LoRaMacSerializerStatus_t LoRaMac_SerializePacket(LoRaMacMessageData_t* mac_msg)
 	mac_msg->Buffer[bufItr++] = (mac_msg->FHDR.DevAddr >> 8) & 0xFF;
 	mac_msg->Buffer[bufItr++] = (mac_msg->FHDR.DevAddr >> 16) & 0xFF;
 	mac_msg->Buffer[bufItr++] = (mac_msg->FHDR.DevAddr >> 24) & 0xFF;
-	
+
 	mac_msg->Buffer[bufItr++] = mac_msg->FHDR.FCtrl.Value;
 	mac_msg->Buffer[bufItr++] = mac_msg->FHDR.FCnt & 0xFF;
 	mac_msg->Buffer[bufItr++] = (mac_msg->FHDR.FCnt >> 8) & 0xFF;
 	mac_msg->Buffer[bufItr++] = mac_msg->FHDR.FLen;
 	
+    
+
 	if(mac_msg->FRMPayloadSize > 0)
 	{
 		mac_msg->Buffer[bufItr++] = mac_msg->FPort;
 	}
 	else
 	{
+        mac_msg->BufSize = bufItr;
 		return LORAMAC_SERIALIZER_SUCCESS;
 	}
 	
@@ -172,6 +174,8 @@ LoRaMacSerializerStatus_t LoRaMac_SerializePacket(LoRaMacMessageData_t* mac_msg)
 	}
 
 	mac_msg->BufSize = bufItr;
+
+    
 	
 	return LORAMAC_SERIALIZER_SUCCESS;
 }
@@ -214,7 +218,7 @@ LoRaMacSerializerStatus_t LoRaMac_SetUpACKMessage
     }
 	
 	serialize_ret = LoRaMac_SerializePacket(ack_msg);
-	
+	printf("%u\r\n",ack_msg->Buffer[3]);
 	return serialize_ret;
 }
 
@@ -983,7 +987,8 @@ void thread_up(void)
                 return ret;
             }
 
-            if(((macMsgData.FHDR.DevAddr>>24)&0xFF)!=GW_ADDR)
+
+            if(((macMsgData.FHDR.DevAddr)&0xFFFF0000)!=GW_ADDR)
             {
                 printf("Wrong GW ADDR \r\n");
                 break;
@@ -1050,15 +1055,22 @@ void thread_up(void)
             // delay to send
             wait_ms(10);
             /* Setup ACK to send */
+            printf("%u\r\n",macMsgData.FHDR.DevAddr >>24);
             LoRaMac_SetUpACKMessage(&ack_msg,macMsgData.FHDR.DevAddr,macMsgData.FHDR.FCnt);
-            strcpy((char *)txpkt.payload,ack_msg.Buffer);
-            printf("%u\r\n",strlen(ack_msg.Buffer));
-            txpkt.size = strlen(ack_msg.Buffer);
+
+            //strcpy((char *)txpkt.payload,ack_msg.Buffer);
+            for(int k = 0; k < ack_msg.BufSize; k++)
+            {
+                txpkt.payload[k] = ack_msg.Buffer[k];
+            }
+            
+            printf("%u\r\n",ack_msg.BufSize);
+            txpkt.size = ack_msg.BufSize;
             /* send packet */
             printf("Sending ACK\r\n");
             
             pthread_mutex_lock(&mx_concent);
-            i = lgw_send(txpkt); /* non-blocking scheduling of TX packet */
+            i = lgw_send(txpkt); 
             pthread_mutex_unlock(&mx_concent);
 
             if (i == LGW_HAL_ERROR) 
