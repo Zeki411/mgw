@@ -875,7 +875,7 @@ void thread_up(void)
     uint8_t status_var;
 
     char mod[64] = DEFAULT_MODULATION;
-    uint32_t f_target = 869525000; /* target frequency - invalid default value, has to be specified by user */
+    uint32_t f_target = 924600000; /* target frequency - invalid default value, has to be specified by user */
     int sf = 7; /* SF10 by default */
     int cr = 1; /* CR1 aka 4/5 by default */
     int bw = 125; /* 125kHz bandwidth by default */
@@ -1067,6 +1067,7 @@ void thread_up(void)
             printf("%u\r\n",ack_msg.BufSize);
             txpkt.size = ack_msg.BufSize;
             /* send packet */
+	    wait_ms(50);
             printf("Sending ACK\r\n");
             
             pthread_mutex_lock(&mx_concent);
