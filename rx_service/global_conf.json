@@ -6,7 +6,7 @@
 		"antenna_gain": 0,
 		"antenna_gain_desc": "antenna gain, in dBi",
 		"lbt_cfg": {
-			"enable": true,
+			"enable": false,
 			"rssi_target": -80,
 			"chan_cfg":[
 				{ "freq_hz": 923200000, "scan_time_us": 128 },
@@ -77,12 +77,6 @@
 			"enable": true,
 			"radio": 1,
 			"if": -200000
-		},
-		"chan_multiSF_7": {
-			"desc": "Lora MAC, 125kHz, all SF, 924.6 MHz",
-			"enable": true,
-			"radio": 1,
-			"if": 0
 		},
 		"chan_Lora_std": {
 			"desc": "Lora MAC, 250kHz, SF7, 924.5 MHz",
